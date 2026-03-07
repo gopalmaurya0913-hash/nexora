@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexoraa - Disaster Relief Coordinator</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>Nexoraa</h1>
+                <span class="badge">AI Coordinator</span>
+            </div>
+            
+            <!-- Navigation Menu Bar -->
+            <nav class="nav-menu">
+                <button id="nav-history-btn" class="nav-btn">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+                    History
+                </button>
+                <button id="nav-contacts-btn" class="nav-btn primary">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/></svg>
+                    Contacts
+                </button>
+            </nav>
+
+            <div class="system-status">
+                <span class="status-indicator animate-pulse"></span>
+                <span>Global System Online</span>
+            </div>
+        </header>
+
+        <!-- Main Content Layout -->
+        <main class="main-layout">
+            <!-- Sidebar / Feed -->
+            <aside class="feed-panel glass-panel">
+                <div class="panel-header">
+                    <h2>Live SOS Feed</h2>
+                    <span id="feed-count">0</span>
+                </div>
+                
+                <div class="manual-entry">
+                    <input type="text" id="manual-sos-input" placeholder="Enter manual report (e.g. Need water at sector 7)">
+                    <button id="submit-sos-btn">Report</button>
+                </div>
+
+                <div class="feed-container" id="feed-container">
+                    <!-- Feed items injected via JS -->
+                </div>
+            </aside>
+
+            <!-- Map Area -->
+            <section class="map-panel glass-panel">
+                <div id="map"></div>
+                <div class="map-overlay">
+                    <div class="legend">
+                        <h4>Urgency Legend</h4>
+                        <div class="legend-item"><span class="marker-color high"></span> High Urgency</div>
+                        <div class="legend-item"><span class="marker-color medium"></span> Medium Urgency</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Contacts Modal -->
+    <div id="contacts-modal" class="modal-backdrop hidden">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h2>Contact Information</h2>
+                <button class="close-modal-btn" data-target="contacts-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="contact-card">
+                    <h3>Gopal Maurya</h3>
+                    <p><strong>Email:</strong> <a href="mailto:gopalmaurya0913@gmail.com" style="color:var(--accent-primary);">gopalmaurya0913@gmail.com</a></p>
+                    <p><strong>Address:</strong> India, Gujarat, Surat 395004</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal-backdrop hidden">
+        <div class="modal modal-lg glass-panel">
+            <div class="modal-header">
+                <h2>Incident History Log</h2>
+                <button class="close-modal-btn" data-target="history-modal">&times;</button>
+            </div>
+            <div class="modal-body history-body" id="history-list-container">
+                <!-- History items injected here -->
+                <p class="history-empty">Loading history...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
