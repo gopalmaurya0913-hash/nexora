@@ -21,6 +21,10 @@
             
             <!-- Navigation Menu Bar -->
             <nav class="nav-menu">
+                <button id="nav-helplines-btn" class="nav-btn emergency">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                    Helplines
+                </button>
                 <button id="nav-history-btn" class="nav-btn">
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
                     History
@@ -71,6 +75,27 @@
     </div>
 
     <!-- Modals -->
+    <!-- Helplines Modal -->
+    <div id="helplines-modal" class="modal-backdrop hidden">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h2>Emergency Helplines</h2>
+                <button class="close-modal-btn" data-target="helplines-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="contact-card">
+                    <h3>National Emergency Numbers</h3>
+                    <p><strong>National Emergency Number:</strong> <a href="tel:112" style="color:var(--accent-primary);">112</a></p>
+                    <p><strong>Police:</strong> <a href="tel:100" style="color:var(--accent-primary);">100</a></p>
+                    <p><strong>Fire:</strong> <a href="tel:101" style="color:var(--accent-primary);">101</a></p>
+                    <p><strong>Ambulance:</strong> <a href="tel:102" style="color:var(--accent-primary);">102</a></p>
+                    <p><strong>Disaster Management:</strong> <a href="tel:108" style="color:var(--accent-primary);">108</a></p>
+                    <p><strong>NDRF Control Room:</strong> <a href="tel:9711077372" style="color:var(--accent-primary);">9711077372</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Contacts Modal -->
     <div id="contacts-modal" class="modal-backdrop hidden">
         <div class="modal glass-panel">

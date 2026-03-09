@@ -65,6 +65,7 @@ body {
     font-weight: 800;
     background: linear-gradient(90deg, #fff, var(--accent-primary));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 1px;
 }
@@ -377,6 +378,16 @@ body {
 
 .nav-btn.primary:hover {
     background: rgba(0, 229, 255, 0.3);
+}
+
+.nav-btn.emergency {
+    background: rgba(255, 71, 87, 0.15);
+    border-color: var(--urgency-high);
+    color: var(--urgency-high);
+}
+
+.nav-btn.emergency:hover {
+    background: rgba(255, 71, 87, 0.3);
 }
 
 /* Modals */

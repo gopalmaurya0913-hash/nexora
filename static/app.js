@@ -160,8 +160,10 @@ submitBtn.addEventListener('click', async () => {
 // Modal Logic
 const historyBtn = document.getElementById('nav-history-btn');
 const contactsBtn = document.getElementById('nav-contacts-btn');
+const helplinesBtn = document.getElementById('nav-helplines-btn');
 const historyModal = document.getElementById('history-modal');
 const contactsModal = document.getElementById('contacts-modal');
+const helplinesModal = document.getElementById('helplines-modal');
 const closeBtns = document.querySelectorAll('.close-modal-btn');
 const historyList = document.getElementById('history-list-container');
 
@@ -203,6 +205,9 @@ historyBtn.addEventListener('click', () => {
 });
 contactsBtn.addEventListener('click', () => {
     contactsModal.classList.remove('hidden');
+});
+helplinesBtn.addEventListener('click', () => {
+    helplinesModal.classList.remove('hidden');
 });
 
 // Close modals
