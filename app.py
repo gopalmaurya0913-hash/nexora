@@ -2,7 +2,12 @@ from flask import Flask, jsonify, render_template, request
 import time
 import random
 import threading
+import os
+from dotenv import load_dotenv
 from nlp_engine import analyze_text
+
+# Load environment variables from .env
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -31,6 +36,8 @@ def background_scraper():
         text = random.choice(MOCK_FEEDS)
         processed = analyze_text(text)
         processed["timestamp"] = int(time.time() * 1000)
+        processed["id"] = int(time.time() * 1000) + random.randint(1, 1000)
+        processed["status"] = "Pending"
         feed_data.append(processed)
         
     while True:
@@ -38,6 +45,8 @@ def background_scraper():
         text = random.choice(MOCK_FEEDS)
         processed = analyze_text(text)
         processed["timestamp"] = int(time.time() * 1000)
+        processed["id"] = int(time.time() * 1000) + random.randint(1, 1000)
+        processed["status"] = "Pending"
         
         # Keep only the latest 100
         feed_data.append(processed)
@@ -46,12 +55,31 @@ def background_scraper():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    google_maps_key = os.getenv("GOOGLE_MAPS_API_KEY", "")
+    return render_template("index.html", google_maps_key=google_maps_key)
+
+@app.route("/dashboard")
+def dashboard():
+    google_maps_key = os.getenv("GOOGLE_MAPS_API_KEY", "")
+    return render_template("dashboard.html", google_maps_key=google_maps_key)
 
 @app.route("/api/feeds", methods=["GET"])
 def get_feeds():
     # Return the latest feeds
     return jsonify(feed_data)
+
+@app.route("/api/update_status", methods=["POST"])
+def update_status():
+    data = request.get_json()
+    feed_id = data.get("id")
+    new_status = data.get("status")
+    
+    for item in feed_data:
+        if item.get("id") == feed_id:
+            item["status"] = new_status
+            return jsonify({"message": "Status updated successfully", "data": item})
+    
+    return jsonify({"error": "Feed not found"}), 404
 
 @app.route("/api/submit", methods=["POST"])
 def submit_feed():
@@ -63,14 +91,16 @@ def submit_feed():
             
         processed = analyze_text(text)
         processed["timestamp"] = int(time.time() * 1000)
+        processed["id"] = int(time.time() * 1000) + random.randint(1, 1000)
+        processed["status"] = "Pending"
         feed_data.append(processed)
         return jsonify({"message": "Successfully submitted and categorized.", "data": processed})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    # Start background scraper thread
+    # Start background scraper thread only in local development
     t = threading.Thread(target=background_scraper, daemon=True)
     t.start()
     
-    app.run(host="0.0.0.0", debug=True, port=5000, use_reloader=False)
+    app.run(host="127.0.0.1", debug=True, port=5000)

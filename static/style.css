@@ -343,6 +343,31 @@ body {
 .marker-medium { background-color: var(--urgency-medium); box-shadow: 0 0 15px var(--urgency-medium); }
 .marker-low { background-color: var(--urgency-low); box-shadow: 0 0 15px var(--urgency-low); }
 
+/* Pulsing Ring for New Reports */
+.pulsing-ring {
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
+
+.pulsing-ring::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border: 3px solid var(--accent-primary);
+    border-radius: 50%;
+    animation: ring-pulse 2s infinite;
+    pointer-events: none;
+}
+
+@keyframes ring-pulse {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
 /* Navigation Menu */
 .nav-menu {
     display: flex;
@@ -486,4 +511,33 @@ body {
     text-align: center;
     color: var(--text-muted);
     padding: 20px 0;
+}
+
+/* Route Button on Feed Cards */
+.route-btn {
+    width: 100%;
+    margin-top: 12px;
+    background: rgba(0, 229, 255, 0.05);
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.route-btn:hover {
+    background: rgba(0, 229, 255, 0.2);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.route-btn svg {
+    width: 16px;
+    height: 16px;
 }

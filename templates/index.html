@@ -4,11 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexoraa - Disaster Relief Coordinator</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="/static/style.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}&libraries=visualization&callback=initMap&v=weekly" defer></script>
+    <style>
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        .mic-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .mic-btn:hover { transform: scale(1.1); }
+        .mic-btn.recording { animation: pulse 1.5s infinite; background: #c0392b; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -35,7 +64,8 @@
                 </button>
             </nav>
 
-            <div class="system-status">
+            <div class="system-status" style="display:flex; align-items:center;">
+                <a href="/dashboard" class="nav-btn" style="margin-right: 15px; text-decoration: none;">Rescuer Dashboard</a>
                 <span class="status-indicator animate-pulse"></span>
                 <span>Global System Online</span>
             </div>
@@ -50,8 +80,23 @@
                     <span id="feed-count">0</span>
                 </div>
                 
-                <div class="manual-entry">
-                    <input type="text" id="manual-sos-input" placeholder="Enter manual report (e.g. Need water at sector 7)">
+                <div class="filter-section" style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; display: flex; gap: 8px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <select id="filter-category" style="padding: 6px; flex: 1; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white;">
+                        <option value="all" style="color: black;">All Categories</option>
+                        <option value="medical" style="color: black;">Medical</option>
+                        <option value="food" style="color: black;">Food</option>
+                        <option value="rescue" style="color: black;">Rescue</option>
+                        <option value="infrastructure" style="color: black;">Infrastructure</option>
+                        <option value="other" style="color: black;">Other</option>
+                    </select>
+                    <input type="text" id="filter-location" placeholder="Search by Location..." style="padding: 6px; flex: 1; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white;">
+                </div>
+                
+                <div class="manual-entry" style="display:flex; align-items:center;">
+                    <button class="mic-btn" id="voice-btn" title="Hold to speak (Supports regional languages like Hindi, Gujarati)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+                    </button>
+                    <input type="text" id="manual-sos-input" placeholder="Type or speak report (e.g. Need water at sector 7)">
                     <button id="submit-sos-btn">Report</button>
                 </div>
 
@@ -62,12 +107,27 @@
 
             <!-- Map Area -->
             <section class="map-panel glass-panel">
+                <div class="map-controls">
+                    <label style="font-size:0.9rem; font-weight:600; color: #333; cursor:pointer; display:flex; align-items:center;">
+                        <input type="checkbox" id="heatmap-toggle" style="margin-right: 8px; width:16px; height:16px;">
+                        Show Density Heatmap
+                    </label>
+                </div>
                 <div id="map"></div>
                 <div class="map-overlay">
                     <div class="legend">
                         <h4>Urgency Legend</h4>
                         <div class="legend-item"><span class="marker-color high"></span> High Urgency</div>
                         <div class="legend-item"><span class="marker-color medium"></span> Medium Urgency</div>
+                        
+                        <h4 style="margin-top: 15px;">Density (Heatmap)</h4>
+                        <div class="legend-item">
+                            <div style="width: 100%; height: 10px; background: linear-gradient(90deg, yellow, orange, red); border-radius: 5px;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 5px;">
+                            <span>Low</span>
+                            <span>High</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -127,8 +187,7 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <audio id="alert-sound" src="/static/alert.mp3" preload="auto"></audio>
     <script src="/static/app.js"></script>
 </body>
 </html>

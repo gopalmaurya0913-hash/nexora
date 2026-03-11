@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Dashboard - Nexoraa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { padding: 2rem; color: #333; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .dashboard-header h1 { color: #fff; } /* Keep logo text white if body is dark */
+        .table-container { background: rgba(255, 255, 255, 0.95); color: #333; border-radius: 12px; padding: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { font-weight: 600; color: #555; }
+        .status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+        .status-Pending { background: #ffebee; color: #c62828; }
+        .status-En-Route { background: #fff8e1; color: #f57f17; }
+        .status-Resolved { background: #e8f5e9; color: #2f7c33; }
+        
+        button.action-btn { border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin-right: 0.5rem; font-weight: 500; transition: transform 0.2s; }
+        button.action-btn:hover { transform: scale(1.05); }
+        .btn-enroute { background: #ffca28; color: #333; }
+        .btn-resolve { background: #66bb6a; color: white; }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="dashboard-header">
+        <div class="logo">
+            <h1>Nexoraa</h1>
+            <span class="badge">Volunteer Dashboard</span>
+        </div>
+        <a href="/" class="nav-btn primary" style="text-decoration: none;">Live Map</a>
+    </div>
+
+    <div class="table-container">
+        <div style="display:flex; gap:10px; margin-bottom: 20px;">
+            <select id="dash-filter-category" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="all">All Categories</option>
+                <option value="medical">Medical</option>
+                <option value="food">Food</option>
+                <option value="rescue">Rescue</option>
+                <option value="infrastructure">Infrastructure</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" id="dash-filter-location" placeholder="Search by location..." style="padding: 8px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Category</th>
+                    <th>Message</th>
+                    <th>Urgency</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dashboard-body">
+                <!-- Data populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function fetchDashboardFeeds() {
+            fetch('/api/feeds')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('dashboard-body');
+                    const categoryFilter = document.getElementById('dash-filter-category').value.toLowerCase();
+                    const locationFilter = document.getElementById('dash-filter-location').value.toLowerCase();
+                    tbody.innerHTML = '';
+                    
+                    // Filter logic
+                    const filteredData = data.filter(item => {
+                        const matchCat = categoryFilter === 'all' || item.category === categoryFilter;
+                        const matchLoc = !locationFilter || (item.location_name && item.location_name.toLowerCase().includes(locationFilter));
+                        return matchCat && matchLoc;
+                    });
+                    
+                    // Show newest first
+                    const reversed = [...filteredData].reverse();
+                    
+                    reversed.forEach(item => {
+                        const date = new Date(item.timestamp).toLocaleTimeString();
+                        let safeStatusClass = item.status ? item.status.replace(" ", "-") : "Pending";
+                        
+                        // Urgency logic formatting
+                        const isHigh = item.urgency === 'high';
+                        const urgencyTag = `<span style="color: ${isHigh ? '#e74c3c' : '#f39c12'}; font-weight: bold;">${item.urgency.toUpperCase()}</span>`;
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${date}</td>
+                            <td><strong>${item.location_name || 'Global (Auto)'}</strong></td>
+                            <td style="text-transform: capitalize;">${item.category}</td>
+                            <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.text}">${item.text}</td>
+                            <td>${urgencyTag}</td>
+                            <td><span class="status-badge status-${safeStatusClass}">${item.status || 'Pending'}</span></td>
+                            <td>
+                                ${item.status !== 'Resolved' ? 
+                                    `<button class="action-btn btn-enroute" onclick="updateStatus(${item.id}, 'En Route')">En Route</button>
+                                     <button class="action-btn btn-resolve" onclick="updateStatus(${item.id}, 'Resolved')">Resolve</button>` : 
+                                    '<span style="color: #4caf50; font-weight:500;">Closed ✔</span>'
+                                }
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => console.error("Error fetching dashboard feeds:", err));
+        }
+
+        function updateStatus(id, newStatus) {
+            fetch('/api/update_status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, status: newStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                fetchDashboardFeeds();
+            })
+            .catch(err => console.error("Error updating status:", err));
+        }
+
+        // Watch for filter changes to re-render instantly without waiting for polling
+        document.getElementById('dash-filter-category').addEventListener('change', fetchDashboardFeeds);
+        document.getElementById('dash-filter-location').addEventListener('input', fetchDashboardFeeds);
+
+        // Poll every 3 seconds for dashboard updates
+        setInterval(fetchDashboardFeeds, 3000);
+        fetchDashboardFeeds();
+    </script>
+</body>
+</html>

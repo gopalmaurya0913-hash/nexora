@@ -3,3 +3,5 @@ Werkzeug==3.0.1
 gunicorn
 waitress
 geopy
+python-dotenv
+google-genai

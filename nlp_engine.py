@@ -1,7 +1,20 @@
+import os
 import re
+import json
 import random
+from google import genai
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
+from dotenv import load_dotenv
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    client = genai.Client(api_key=GEMINI_API_KEY)
+else:
+    client = None
 
 # Initialize the Geocoder (using OpenStreetMap data)
 geolocator = Nominatim(user_agent="nexoraa_disaster_app")
@@ -55,27 +68,44 @@ def extract_potential_location(text):
 
 def analyze_text(text):
     """
-    Very basic NLP:
-    1. Categorize based on keywords.
-    2. Extract location based on predefined dictionary.
+    NLP Engine: Uses Gemini (if available) or falls back to basic keyword matching.
     """
     text_lower = text.lower()
     
-    # Identify category
-    identified_category = "other"  # default
-    for category, keywords in CATEGORIES.items():
-        if any(keyword in text_lower for keyword in keywords):
-            identified_category = category
-            break
+    identified_category = "other"
+    extracted_location = None
+    
+    if client:
+        try:
+            prompt = f"Analyze the following disaster distress text which may be in Hindi, Gujarati, or any regional language. First, translate it to English. Then, extract the Category (one of: medical, food, rescue, infrastructure, other) and the specific Location mentioned. If no specific location is mentioned, return null for location. Return ONLY a valid JSON object in this format: {{\"category\": \"...\", \"location_name\": \"...\"}}. Text: '{text}'"
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            json_str = re.search(r'\{.*\}', response.text, re.DOTALL).group()
+            result = json.loads(json_str)
+            identified_category = result.get("category", "other").lower()
+            extracted_location = result.get("location_name")
+        except Exception as e:
+            print(f"Gemini API error: {e}")
+            pass
             
-    # 2. Extract and Geocode location
-    extracted_location = extract_potential_location(text)
+    if not client or identified_category == "other" or not extracted_location:
+        # Fallback to basic NLP
+        for category, keywords in CATEGORIES.items():
+            if any(keyword in text_lower for keyword in keywords):
+                identified_category = category
+                break
+        if not extracted_location:
+            extracted_location = extract_potential_location(text)
+            
+    # Geocode location
     coords = None
     
     if extracted_location:
         try:
-            # Try to get real coordinates from OpenStreetMap
-            location = geolocator.geocode(extracted_location, timeout=3)
+            # Try to get real coordinates from Geocoder
+            location = geolocator.geocode(extracted_location, timeout=5)
             if location:
                 extracted_location = location.address.split(",")[0] # Get the primary name
                 coords = {

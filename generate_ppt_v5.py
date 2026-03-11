@@ -138,10 +138,23 @@ if os.path.exists(img_path_dash2):
     pic2.line.color.rgb = RGBColor(200, 200, 200)
 
 
+# --- Slide 4: Rescuer Dashboard ---
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+apply_light_theme(slide)
+add_title(slide, "4. Rescuer Dashboard & Collaboration")
+
+dash_features = (
+    "• Dedicated Volunteer View: Rescuers get a clean dashboard of active cries for help.\n"
+    "• Status Tracking: One-click actions to mark a signal as 'En Route' or 'Resolved'.\n"
+    "• Global Synchronization: Once a rescuer targets a mission, all other teams see it live, preventing duplicate efforts."
+)
+add_body(slide, dash_features, 0.5, 2.0, 11.0, 4.5, font_size=28)
+
+
 # --- Slide 5: The Impact ---
 slide = prs.slides.add_slide(prs.slide_layouts[6])
 apply_light_theme(slide)
-add_title(slide, "4. Why It Matters")
+add_title(slide, "5. Why It Matters")
 
 impact_text = (
     "• Saves Time: We cut down sorting time from hours to zero.\n"
@@ -156,6 +169,6 @@ if os.path.exists(img_path_3):
     pic3.line.color.rgb = RGBColor(200, 200, 200)
 
 # Save the presentation
-output_name = "Nexoraa_Hackathon_Pitch_V6.pptx"
+output_name = "Nexoraa_Hackathon_Pitch_V7.pptx"
 prs.save(output_name)
-print(f"Masterpiece 5-Slide Clean Light Theme created: {output_name}!")
+print(f"Masterpiece 6-Slide Clean Light Theme created: {output_name}!")
