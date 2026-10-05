@@ -1,6 +1,6 @@
 # ☁️ Nexoraa — Cloud-Based AI Disaster Response Web App
 
-> **Live URL:** [https://nexoraa.onrender.com](https://nexoraa.onrender.com)
+> **Live URL:** [https://nexoraa.onrender.com](https://nexora-webapp.onrender.com)
 
 Nexoraa is a **cloud-hosted, AI-powered disaster response platform** that aggregates real-time distress signals, classifies them using Google Gemini AI, and visualizes emergencies on an interactive live map — accessible from **anywhere in the world**, on any device.
 
